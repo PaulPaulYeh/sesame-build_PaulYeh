@@ -1,0 +1,60 @@
+// Message protocol between the UI thread and the MuJoCo worker.
+
+export interface JointInfo {
+  name: string;
+  channel: number; // actuator index == firmware servo channel
+  ctrlLo: number; // internal radians
+  ctrlHi: number;
+}
+
+export interface GeomMeta {
+  name: string;
+  type: number; // mjtGeom enum value
+  group: number; // 2 = visual, 3 = collision (hidden)
+  size: [number, number, number];
+  rgba: [number, number, number, number];
+  // for mesh geoms: MuJoCo re-centers vertices; the renderer must apply the
+  // inverse of this transform to raw GLB vertices (pos xyz, quat wxyz)
+  meshPos?: [number, number, number];
+  meshQuat?: [number, number, number, number];
+}
+
+export type WorkerRequest =
+  | { type: "init" }
+  | { type: "setCtrl"; channel: number; value: number }
+  | { type: "ctrl"; values: number[] }
+  | { type: "reset" }
+  | { type: "pause" }
+  | { type: "resume" }
+  | { type: "run"; steps: number } // deterministic stepping (pause first)
+  | { type: "motion"; name: string } // schedule motion in the live loop
+  | { type: "runMotion"; name: string; settleSteps?: number } // deterministic
+  | { type: "getState" };
+
+export type WorkerResponse =
+  | {
+      type: "ready";
+      joints: JointInfo[];
+      geoms: GeomMeta[];
+      motions: string[];
+      siteNames: string[]; // rig site order for frame.sites
+      timestep: number;
+      mujocoVersion: string;
+    }
+  | {
+      type: "state";
+      qpos: number[];
+      ctrl: number[];
+      time: number;
+      // rig: world position of every named site (skeleton tracking points)
+      skeleton: Record<string, [number, number, number]>;
+    }
+  | {
+      type: "frame";
+      // world transform per geom: 3 pos + 9 rotation-matrix floats
+      xpos: Float32Array;
+      xmat: Float32Array;
+      sites: Float32Array; // rig site world positions, 3 per site
+      time: number;
+    }
+  | { type: "error"; message: string };

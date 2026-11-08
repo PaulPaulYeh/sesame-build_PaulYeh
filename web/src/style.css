@@ -1,0 +1,120 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html,
+body,
+#app,
+main {
+  height: 100%;
+}
+
+body {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: #1a1a1e;
+  color: #ddd;
+}
+
+main {
+  display: flex;
+}
+
+#view {
+  flex: 1;
+  display: block;
+}
+
+#panel {
+  width: 320px;
+  padding: 16px;
+  overflow-y: auto;
+  border-left: 1px solid #333;
+}
+
+#panel h1 {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+#status {
+  font-size: 12px;
+  color: #8a8;
+  margin-bottom: 16px;
+}
+
+.slider-row {
+  display: grid;
+  grid-template-columns: 64px 1fr 48px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+#buttons {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+}
+
+#buttons button {
+  flex: 1;
+  padding: 8px;
+  background: #2a2a30;
+  color: #ddd;
+  border: 1px solid #444;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#buttons button:hover {
+  background: #35353d;
+}
+
+#panel h2 {
+  font-size: 13px;
+  margin: 16px 0 8px;
+  color: #999;
+}
+
+#motions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+#motions button {
+  padding: 6px 4px;
+  font-size: 11px;
+  background: #23232a;
+  color: #cbb;
+  border: 1px solid #3a3a44;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#motions button:hover {
+  background: #35353d;
+}
+
+#skeleton-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #9c9;
+  cursor: pointer;
+}
+
+#telemetry {
+  margin-top: 12px;
+  font-size: 11px;
+  line-height: 1.7;
+  color: #aaa;
+  white-space: pre;
+}
+
+#telemetry .paw.grounded {
+  color: #6c6;
+}

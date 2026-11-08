@@ -1,0 +1,636 @@
+{
+  "schema_version": 1,
+  "generated_by": "tools/generate_s3_firmware.py",
+  "status": "NEEDS-HARDWARE; offline validation is recorded separately in the diagnosis",
+  "procedure": "reference/SESAME-S3-CALIBRATION.md",
+  "diagnosis": "reference/SESAME-S3-DIAGNOSIS.md",
+  "firmware": "firmware/sesame-s3",
+  "flash_command": "python3 tools/sesame_s3.py flash --port PORT",
+  "console_command": "python3 tools/sesame_s3.py console --port PORT",
+  "serial": {
+    "baud": 115200,
+    "line_ending": "LF",
+    "maximum_line_bytes": 159,
+    "live_command": ":live",
+    "pause_heartbeat_command": ":pause",
+    "close_command": ":quit"
+  },
+  "joint_map": [
+    {
+      "name": "R1",
+      "logical_index": 0,
+      "leg": "front_right",
+      "role": "hip",
+      "target_pca_channel": 4,
+      "hardware_verified_pca_channel": null,
+      "default_nvs_channel": 4,
+      "mapping_status": "recommended-default-not-physically-verified",
+      "manifest_sign": 1,
+      "soft_firmware_deg": [
+        45,
+        180
+      ],
+      "soft_internal_deg": [
+        -45,
+        90
+      ]
+    },
+    {
+      "name": "R2",
+      "logical_index": 1,
+      "leg": "back_right",
+      "role": "hip",
+      "target_pca_channel": 5,
+      "hardware_verified_pca_channel": null,
+      "default_nvs_channel": 5,
+      "mapping_status": "recommended-default-not-physically-verified",
+      "manifest_sign": -1,
+      "soft_firmware_deg": [
+        0,
+        135
+      ],
+      "soft_internal_deg": [
+        -45,
+        90
+      ]
+    },
+    {
+      "name": "L1",
+      "logical_index": 2,
+      "leg": "front_left",
+      "role": "hip",
+      "target_pca_channel": 0,
+      "hardware_verified_pca_channel": null,
+      "default_nvs_channel": 0,
+      "mapping_status": "recommended-default-not-physically-verified",
+      "manifest_sign": -1,
+      "soft_firmware_deg": [
+        0,
+        135
+      ],
+      "soft_internal_deg": [
+        -45,
+        90
+      ]
+    },
+    {
+      "name": "L2",
+      "logical_index": 3,
+      "leg": "back_left",
+      "role": "hip",
+      "target_pca_channel": 1,
+      "hardware_verified_pca_channel": null,
+      "default_nvs_channel": 1,
+      "mapping_status": "recommended-default-not-physically-verified",
+      "manifest_sign": 1,
+      "soft_firmware_deg": [
+        45,
+        180
+      ],
+      "soft_internal_deg": [
+        -45,
+        90
+      ]
+    },
+    {
+      "name": "R4",
+      "logical_index": 4,
+      "leg": "back_right",
+      "role": "foot",
+      "target_pca_channel": 7,
+      "hardware_verified_pca_channel": null,
+      "default_nvs_channel": 7,
+      "mapping_status": "recommended-default-not-physically-verified",
+      "manifest_sign": -1,
+      "soft_firmware_deg": [
+        0,
+        180
+      ],
+      "soft_internal_deg": [
+        -90,
+        90
+      ]
+    },
+    {
+      "name": "R3",
+      "logical_index": 5,
+      "leg": "front_right",
+      "role": "foot",
+      "target_pca_channel": 6,
+      "hardware_verified_pca_channel": null,
+      "default_nvs_channel": 6,
+      "mapping_status": "recommended-default-not-physically-verified",
+      "manifest_sign": 1,
+      "soft_firmware_deg": [
+        0,
+        180
+      ],
+      "soft_internal_deg": [
+        -90,
+        90
+      ]
+    },
+    {
+      "name": "L3",
+      "logical_index": 6,
+      "leg": "front_left",
+      "role": "foot",
+      "target_pca_channel": 2,
+      "hardware_verified_pca_channel": null,
+      "default_nvs_channel": 2,
+      "mapping_status": "recommended-default-not-physically-verified",
+      "manifest_sign": -1,
+      "soft_firmware_deg": [
+        0,
+        180
+      ],
+      "soft_internal_deg": [
+        -90,
+        90
+      ]
+    },
+    {
+      "name": "L4",
+      "logical_index": 7,
+      "leg": "back_left",
+      "role": "foot",
+      "target_pca_channel": 3,
+      "hardware_verified_pca_channel": null,
+      "default_nvs_channel": 3,
+      "mapping_status": "recommended-default-not-physically-verified",
+      "manifest_sign": 1,
+      "soft_firmware_deg": [
+        0,
+        180
+      ],
+      "soft_internal_deg": [
+        -90,
+        90
+      ]
+    }
+  ],
+  "pulse": {
+    "profile_id": "tim-pca9685-150-512-v1",
+    "reference_ticks": [
+      150,
+      512
+    ],
+    "reference_tick_us": 4.88,
+    "interpolation": "floor-reference-ticks",
+    "range_us": [
+      732.0,
+      2498.56
+    ],
+    "angle_deg": [
+      0,
+      180
+    ],
+    "neutral_deg": 90,
+    "neutral_us": 1615.28,
+    "pwm_hz": 50,
+    "oscillator_default_hz": 25000000,
+    "oscillator_status": "nominal-unmeasured",
+    "ticks_formula": "round(us * oscillator_hz / (1000000 * (prescale+1)))"
+  },
+  "button": {
+    "pin": 0,
+    "off_press_release": "raw CH0..7 neutral for30s",
+    "active_press": "off",
+    "held_at_boot": "must release before new press"
+  },
+  "output_enable": {
+    "gpio": 7,
+    "disabled_level": "HIGH",
+    "enabled_level": "LOW",
+    "carrier_address": "I17",
+    "s3_header_part": "s3.male_pin.I17",
+    "hub_address": "A7",
+    "hub_header_part": "hub.male_pin.A7",
+    "hub_signal": "OE",
+    "pullup": {
+      "rail": "3V3 logic VCC",
+      "rail_address": "A4",
+      "rail_part": "hub.male_pin.A4",
+      "reported_ohms": 4700,
+      "universally_validated": false,
+      "reported_outputs_off_v": 3.2,
+      "reported_voltage_state": "GPIO7 actively driving HIGH, not reset/high-impedance",
+      "reference_module_pulldown_ohms": 10000,
+      "reference_high_z_divider_ratio": 0.6802721088435374,
+      "pca_minimum_high_ratio_vdd": 0.7,
+      "reset_behavior_verified": false,
+      "reset_check": "Check actual OE-to-GND level while the MCU is held in reset/high-impedance and logic VCC is present, with servo plugs disconnected. Evaluate against the actual VCC and PCA input-high specification; driven-HIGH voltage alone does not prove reset disable. Identify module bias and correct the hardware bias if it cannot hold HIGH with margin.",
+      "warning": "A4 is logic VCC, not A3 servo V+. 4.7k is a reported class-build value, not a universal resistor recommendation; an onboard pull-down can defeat it during reset."
+    },
+    "provenance": {
+      "selection": "Instructor authorized exposed GPIO7 as the canonical course OE pin, 2026-10-25",
+      "s3_location": "Parent-observed actual-board photo, 2026-10-22: USB-facing-A row A17=TX through I17=GPIO7; native s3.male_pin.I17 has Address=I17",
+      "hub_location": "Existing course hub header contract A3=V+, A4=VCC, A5=SDA, A6=SCL, A7=OE, A8=GND; native exposed male-pin geometry",
+      "bench_report": "Instructor-supplied private course notes report GPIO7, 4.7k to 3V3, about 3.2V while driven HIGH and stopping after a fault; not independently reproduced or a reset-time measurement. No student code imported.",
+      "electrical_reference": "reference/SESAME-S3-OE.md"
+    }
+  },
+  "clock_measurement": {
+    "input_gpio": 4,
+    "pca_channel": 15,
+    "pca_signal_parts": [
+      "cad.Part__Feature128.pin.2",
+      "cad.Part__Feature144.pin.2"
+    ],
+    "pca_signal_parts_scope": "reference-CAD-only: native CH15 near USB conflicts with reported actual-photo far-end CH15 annotation",
+    "pca_actual_photo_native_part": null,
+    "pca_connection_rule": "Use the actual board's printed 15 and SIGNAL/PWM row, not V+; do not try the opposite end on timeout. Actual printed channel legend was not fully legible in the parent observation.",
+    "carrier_address": "F17",
+    "s3_header_part": "s3.male_pin.F17",
+    "pin_binding_status": "photo-located GPIO4/F17; not a physical continuity or voltage measurement",
+    "pin_binding_provenance": {
+      "kind": "parent-observed-user-reference-photo",
+      "observed_on": "2026-10-22",
+      "record": "User-provided annotated actual-board photo in the canonical APS guide conversation; observation relayed by the parent session",
+      "image_sha256": null,
+      "image_hash_note": "Attachment not supplied as a local file; no image hash invented",
+      "far_to_usb_labels": [
+        "7",
+        "6",
+        "5",
+        "4",
+        "3",
+        "2",
+        "1",
+        "RX",
+        "TX"
+      ],
+      "installed_row_usb_to_far": {
+        "A17": "TX",
+        "B17": "RX",
+        "C17": "GPIO1",
+        "D17": "GPIO2",
+        "E17": "GPIO3",
+        "F17": "GPIO4",
+        "G17": "GPIO5",
+        "H17": "GPIO6",
+        "I17": "GPIO7"
+      },
+      "geometry_evidence": "assets/cad/instructions/s3-installation.json places USB toward A; native s3.male_pin.F17 carries Address=F17",
+      "supersedes": "Earlier unresolved S3 carrier binding; this is actual-board photo evidence, not extrapolation from adjacent pins or the Waveshare Zero reference pinout",
+      "not_established": [
+        "physical continuity",
+        "voltage",
+        "measurement jumper installed",
+        "actual hub printed CH15 orientation"
+      ]
+    },
+    "power": "USB only; battery physically unplugged; all servo plugs removed; CH15 SIGNAL (not V+) to labelled GPIO4 input; common carrier GND; logic VCC 3.3V only",
+    "target_edges": 101,
+    "timeout_ms": 4000,
+    "watchdog_ms": 500,
+    "clock_reference": "S3 esp_timer microseconds; average 100 periods; not traceable lab-standard frequency",
+    "quality": "periods 10000..40000us, peak-to-peak jitter <=2% of mean, estimated oscillator 20..30MHz; algorithmic rejection limits, not measured accuracy",
+    "oscillator_formula": "observed_hz * 4096 * (prescale + 1)",
+    "apply": "Explicit oscillator HZ then save while OFF; measurement never changes calibration or verification"
+  },
+  "power": {
+    "flash": "battery physically disconnected; USB only; servo leads may remain connected; outputs OFF at boot",
+    "button_assembly": "unplug USB, then power from battery alone",
+    "serial_motion": "USB only, battery disconnected; arm bench CH; direct targets without software slew ramp on CH0..7 one at a time; allow physical travel time, off between channels; USB capacity unmeasured",
+    "unverified_isolation": "never combine USB and battery; unplug USB before battery-only load testing; no external supply or Wi-Fi requirement",
+    "battery_load_test": "current BOOT routine is a static centre hold; finite repeated-motion load routine pending implementation/validation"
+  },
+  "safeaction": {
+    "watchdog_ms": 500,
+    "failsafe": "outputs_off",
+    "calibration_rate_deg_s": 15,
+    "controller_rate_deg_s": 60,
+    "start": "outputs-off, arm does not emit PWM",
+    "first_enable": "unknown physical position; starts neutral, no feedback"
+  },
+  "bench": {
+    "arm_command": "arm bench CH",
+    "channels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "sequence_deg": [
+      0,
+      90,
+      180,
+      90
+    ],
+    "command_limits_deg": [
+      0,
+      180
+    ],
+    "setup": "Loosely fitted single-arm horn pointers; legs not attached; USB only, battery disconnected; one channel at a time",
+    "advance": "Keep heartbeat active; wait for status current=target at each command before the next; off between channels",
+    "legacy_alias": "arm hornless CH is accepted for compatibility but is not the recommended procedure",
+    "meaning": "Commanded angles, not measured shaft limits or a physical pass from ACK"
+  },
+  "calibration_compatibility": {
+    "read_manifest_ids": [
+      "e669b916d178ac0a",
+      "bd7675604b98ae46"
+    ],
+    "behavior": "Read valid checksum/layout-compatible saved records without changing channel/sign/trim/limits/oscillator/verified values; do not rewrite NVS until explicit save",
+    "normalization": "OE update preserves saved maps, including measured/custom maps, without normalization. Only when explicitly tasked to normalize matching recommended wiring: while OFF, export then unmap all eight before remapping; preserve other values; map edits clear verification"
+  },
+  "ap": {
+    "ssid": "Sesame-S3-<last-two-MAC-bytes>",
+    "password": "sesame123",
+    "ip": "192.168.4.1",
+    "country": "JP",
+    "channel": 1,
+    "requested_tx_dbm": 8.5,
+    "hardware_visibility": "unverified"
+  },
+  "commands": [
+    {
+      "syntax": "help",
+      "mode": "any",
+      "meaning": "List exact command grammar"
+    },
+    {
+      "syntax": "show",
+      "mode": "any",
+      "meaning": "Export map/sign/trim/limits/verified flags and oscillator"
+    },
+    {
+      "syntax": "export",
+      "mode": "any",
+      "meaning": "Print JSON matching calibration_schema; retain per-robot evidence"
+    },
+    {
+      "syntax": "status",
+      "mode": "any",
+      "meaning": "Mode, owner, current/target/electrical pulse telemetry"
+    },
+    {
+      "syntax": "wifi",
+      "mode": "any",
+      "meaning": "Actual AP configuration and API error codes"
+    },
+    {
+      "syntax": "face NAME",
+      "mode": "any",
+      "meaning": "OLED face only"
+    },
+    {
+      "syntax": "bench",
+      "mode": "any",
+      "meaning": "Show paired physical-channel commanded angles; no movement"
+    },
+    {
+      "syntax": "off",
+      "mode": "any",
+      "meaning": "Cancel queues, assert OE, full-off all PCA outputs, disarm"
+    },
+    {
+      "syntax": "stop",
+      "mode": "any",
+      "meaning": "Cancel queues, freeze targets; heartbeat still required"
+    },
+    {
+      "syntax": "heartbeat",
+      "mode": "active-owner",
+      "meaning": "Renew 500ms watchdog; never arms or resumes"
+    },
+    {
+      "syntax": "arm bench CH",
+      "mode": "off",
+      "meaning": "One physical CH0..7, direct 0..180 targets without software slew ramp; canonical bench path"
+    },
+    {
+      "syntax": "arm channel CH",
+      "mode": "off",
+      "meaning": "Legacy restricted raw mode; use arm bench CH for the classroom full-command-range sequence"
+    },
+    {
+      "syntax": "arm joint NAME",
+      "mode": "off",
+      "meaning": "One mapped logical joint, measured/soft/electrical limits"
+    },
+    {
+      "syntax": "arm assembly",
+      "mode": "off",
+      "meaning": "Prepare raw neutral on physical CH0..7; no pulses yet"
+    },
+    {
+      "syntax": "arm run",
+      "mode": "off",
+      "meaning": "Require eight verified joints and saved NVS record; no pulses yet"
+    },
+    {
+      "syntax": "centre",
+      "mode": "assembly",
+      "meaning": "Raw 90 degrees /1615.28us on CH0..7, ignore trims"
+    },
+    {
+      "syntax": "angle DEG",
+      "mode": "single-channel-or-joint",
+      "meaning": "Absolute firmware angle; physical in raw modes"
+    },
+    {
+      "syntax": "us MICROSECONDS",
+      "mode": "single-channel-or-joint",
+      "meaning": "732.0..2498.56, quantized through the same limits/rate gate"
+    },
+    {
+      "syntax": "q INTERNAL_DEG",
+      "mode": "joint",
+      "meaning": "Internal signed joint angle; 0 is neutral"
+    },
+    {
+      "syntax": "jog DELTA_DEG",
+      "mode": "single-channel-or-joint",
+      "meaning": "Add to current firmware angle"
+    },
+    {
+      "syntax": "sweep LOW HIGH",
+      "mode": "single-channel-or-joint",
+      "meaning": "One low-high-neutral pass; direct targets in bench mode, calibration rate in channel/joint modes; live watchdog"
+    },
+    {
+      "syntax": "map NAME CH",
+      "mode": "off",
+      "meaning": "Assign one unique CH0..7; invalidates joint verification"
+    },
+    {
+      "syntax": "unmap NAME",
+      "mode": "off",
+      "meaning": "Unassign joint before swapping channels"
+    },
+    {
+      "syntax": "sign NAME SIGN",
+      "mode": "off",
+      "meaning": "Absolute physical sign +1/-1; invalidates verification"
+    },
+    {
+      "syntax": "trim NAME DEG",
+      "mode": "off",
+      "meaning": "Physical-angle offset, -15..15; invalidates verification"
+    },
+    {
+      "syntax": "limits NAME LOW HIGH",
+      "mode": "off",
+      "meaning": "Measured firmware envelope within manifest, including90"
+    },
+    {
+      "syntax": "verify NAME",
+      "mode": "off",
+      "meaning": "Owner attests measured mapping/direction/limits; not auto-detection"
+    },
+    {
+      "syntax": "oscillator HZ",
+      "mode": "off",
+      "meaning": "Measured20..30MHz; reapplies prescaler, clears ALL verification"
+    },
+    {
+      "syntax": "save",
+      "mode": "off",
+      "meaning": "Persist one versioned/checksummed NVS calibration record"
+    },
+    {
+      "syntax": "reference",
+      "mode": "off",
+      "meaning": "CH15=1500us, all servos disconnected; reports actual programmed ticks"
+    },
+    {
+      "syntax": "clock measure",
+      "mode": "off-usb-only",
+      "meaning": "Bounded CH15 rising-edge timing on GPIO4; all servos unplugged; heartbeat required; no calibration write"
+    },
+    {
+      "syntax": "clock status",
+      "mode": "any",
+      "meaning": "Read generation, quality, edges, observed Hz and oscillator estimate; MCU-relative, not a lab standard"
+    },
+    {
+      "syntax": "clock abort",
+      "mode": "any",
+      "meaning": "Abort clock capture and turn all outputs off"
+    },
+    {
+      "syntax": "motion NAME",
+      "mode": "run",
+      "meaning": "One finite stock sequence through SafeAction; same as run NAME"
+    },
+    {
+      "syntax": "servo NAME DEG",
+      "mode": "run",
+      "meaning": "Bounded single-joint target"
+    },
+    {
+      "syntax": "pose D0 D1 D2 D3 D4 D5 D6 D7",
+      "mode": "run",
+      "meaning": "Bounded targets in canonical logical order"
+    },
+    {
+      "syntax": "rest",
+      "mode": "run",
+      "meaning": "Named rest motion; applies measured trims/signs"
+    },
+    {
+      "syntax": "wifi COUNTRY CHANNEL TX_DBM",
+      "mode": "off-usb-only",
+      "meaning": "JP/US/GB/DE/FR;1..11;2/8.5/13/19.5; session-only"
+    }
+  ],
+  "calibration_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "SesameS3 NVS logical record v1",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "version",
+      "manifest_id",
+      "oscillator_hz",
+      "joints"
+    ],
+    "properties": {
+      "version": {
+        "const": 1
+      },
+      "manifest_id": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{16}$"
+      },
+      "oscillator_hz": {
+        "type": "integer",
+        "minimum": 20000000,
+        "maximum": 30000000
+      },
+      "joints": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "channel",
+            "sign",
+            "trim_deg",
+            "limits_deg",
+            "verified"
+          ],
+          "properties": {
+            "name": {
+              "enum": [
+                "R1",
+                "R2",
+                "L1",
+                "L2",
+                "R4",
+                "R3",
+                "L3",
+                "L4"
+              ]
+            },
+            "channel": {
+              "type": "integer",
+              "minimum": -1,
+              "maximum": 7,
+              "description": "Recommended channels on fresh defaults; -1 supported for legacy records/explicit unmap; nonnegative channels unique"
+            },
+            "sign": {
+              "enum": [
+                -1,
+                1
+              ]
+            },
+            "trim_deg": {
+              "type": "number",
+              "minimum": -15,
+              "maximum": 15
+            },
+            "limits_deg": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 180
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "verified": {
+              "type": "boolean"
+            }
+          }
+        },
+        "minItems": 8,
+        "maxItems": 8
+      }
+    },
+    "$comment": "Joint order must match joint_map; names/channels unique; limits subset of manifest and include90. NVS namespace sesame-s3, key record. Binary record adds magic and checksum; firmware validates all invariants."
+  },
+  "calibration_math": {
+    "physical_angle": "90 + trim + physical_sign * manifest_sign * (firmware_angle - 90)",
+    "internal_angle": "manifest_sign * (firmware_angle - 90)",
+    "clamps": "intersect measured firmware limits, manifest soft limits, and post-trim physical0..180"
+  }
+}

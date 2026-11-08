@@ -1,0 +1,31 @@
+# Chi local state and sensitive artifacts (runtime state lives under ~/.chi)
+.chi/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+
+# Node
+node_modules/
+web/dist/
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+
+# Test artifacts (screenshots etc.)
+tests/artifacts/
+
+# Reproducible, checksum-verified upstream CAD downloads (see assets/cad/README.md)
+assets/cad/upstream/
+
+# The one authoritative assembly is assets/cad/Sesame-S3-Assembly.FCStd (LFS).
+# Historical working paths, automatic backups and runtime files are local only.
+assets/cad/work/
+assets/cad/**/*.FCBak
+assets/cad/**/*.FCStd1
+assets/cad/**/*.FCStd.*

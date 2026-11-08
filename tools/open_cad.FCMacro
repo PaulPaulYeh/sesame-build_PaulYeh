@@ -1,0 +1,16 @@
+"""Open the complete electronics assembly, retaining saved part visibility."""
+from pathlib import Path
+import sys
+import FreeCADGui as Gui
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from cad_document import open_assembly
+
+doc = open_assembly()
+Gui.activateWorkbench('PartWorkbench')
+view = Gui.activeDocument().activeView()
+view.viewAxonometric()
+view.fitAll()
+Gui.getMainWindow().showMaximized()
+Gui.getMainWindow().raise_()
+Gui.getMainWindow().activateWindow()
