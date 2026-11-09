@@ -58,6 +58,21 @@ String ssid, country = "JP";
 int wifiChannel = 1;
 float wifiPower = 8.5;
 const Motion* motion = nullptr;
+// Student addition: self-contained all-joint battery load test. Runs without a
+// host heartbeat (the controller renews its own lease while the finite sequence
+// runs), ends with outputs OFF, and is aborted by off, BOOT or LOADTEST_MAX_MS.
+constexpr MotionStep LOADTEST_STEPS[] = {
+  {{90, 90, 90, 90, 90, 90, 90, 90}, 1000},
+  {{60, 60, 60, 60, 60, 60, 60, 60}, 1000}, {{120, 120, 120, 120, 120, 120, 120, 120}, 1000},
+  {{60, 60, 60, 60, 60, 60, 60, 60}, 1000}, {{120, 120, 120, 120, 120, 120, 120, 120}, 1000},
+  {{60, 60, 60, 60, 60, 60, 60, 60}, 1000}, {{120, 120, 120, 120, 120, 120, 120, 120}, 1000},
+  {{90, 90, 90, 90, 90, 90, 90, 90}, 1000},
+};
+constexpr Motion LOADTEST = {"loadtest", LOADTEST_STEPS, sizeof(LOADTEST_STEPS) / sizeof(MotionStep)};
+constexpr uint32_t LOADTEST_MAX_MS = 30000;
+bool loadtestActive = false;
+uint32_t loadtestStart = 0, loadtestRuns = 0;
+String loadtestResult = "none since boot";
 unsigned motionIndex = 0;
 uint32_t waitStarted = 0;
 bool waiting = false;
@@ -84,7 +99,7 @@ void setFace(const char* name) {
     face = &f; faceFrame = 0; lastFace = 0; return;
   }
 }
-void cancelQueue() { motion = nullptr; sweeping = false; waiting = false; }
+void cancelQueue() { motion = nullptr; sweeping = false; waiting = false; loadtestActive = false; }
 bool clearPWM() {
   digitalWrite(OE, HIGH);
   bool ok = true;
@@ -97,6 +112,7 @@ bool clearPWM() {
 void outputsOff(const char* reason, ClockOutcome outcome = ClockOutcome::Aborted) {
   // Assert hardware disable before detaching/cancelling capture or doing I2C.
   digitalWrite(OE, HIGH);
+  if (loadtestActive) loadtestResult = String("ended: ") + reason + " after " + String(millis() - loadtestStart) + "ms";
   portENTER_CRITICAL(&clockMux);
   clockMeasurement.abort(outcome);
   portEXIT_CRITICAL(&clockMux);
@@ -236,6 +252,7 @@ const char* HELP =
   "clock measure (OFF, USB only, all servos unplugged; input pin: clock status)\n"
   "clock status | clock abort (measurement never writes calibration)\n"
   "servo NAME DEG | pose D0 D1 D2 D3 D4 D5 D6 D7 | rest\n"
+  "OFF only: loadtest (all 8: 90,(60,120)x3,90 then OFF) | loadtest status\n"
   "OFF only: wifi JP|US|GB|DE|FR CHANNEL(1..11) TX_DBM(2|8.5|13|19.5)\n"
   "Every active serial/web session needs heartbeat <500ms; use class console.\n"
   "BOOT release while OFF: 30s assembly centre; BOOT press while active: OFF.";
@@ -261,6 +278,18 @@ String dispatchCommand(const char* text, Owner source) {
   }
   if (gate.active() && owner != source) return "ERR owned by another transport; off first";
   if (c.is("heartbeat", 1)) { gate.heartbeat(now); return ""; }
+  if (c.is("loadtest", 2) && !strcmp(c.words[1], "status"))
+    return "LOADTEST runs=" + String(loadtestRuns) + " active=" + String(loadtestActive) +
+      " result=" + loadtestResult + " uptime_ms=" + String(now);
+  if (c.is("loadtest", 1)) {
+    if (!ready || fault || gate.active()) return "ERR off first / hub fault";
+    if (!saved || !gate.cal.complete()) return "ERR loadtest needs all joints verified+saved";
+    if (!gate.arm(Mode::Run, -1, now)) return "ERR arm run";
+    owner = source; cancelQueue();
+    motion = &LOADTEST; motionIndex = 0; loadtestActive = true; loadtestStart = now; ++loadtestRuns;
+    loadtestResult = "running"; gate.heartbeat(now);
+    return "OK LOADTEST 90,(60,120)x3,90 then OFF; off/BOOT aborts; check: loadtest status";
+  }
   if (clock == ClockCommand::Measure) {
     if (source != USB || !Serial) return "ERR clock measurement requires connected USB owner";
     if (!ready || fault || gate.active()) return "ERR off first / hub fault";
@@ -520,7 +549,10 @@ void motionService() {
     if (millis() - waitStarted < motion->steps[motionIndex-1].waitMs) return;
     waiting = false;
   }
-  if (motionIndex == motion->count) { Serial.println("OK MOTION complete"); motion = nullptr; return; }
+  if (motionIndex == motion->count) {
+    if (loadtestActive) { Serial.println("OK LOADTEST complete"); outputsOff("loadtest complete"); return; }
+    Serial.println("OK MOTION complete"); motion = nullptr; return;
+  }
   const MotionStep& step = motion->steps[motionIndex++];
   for (int j = 0; j < 8; ++j) if (step.degrees[j] >= 0) {
     gate.set(j, step.degrees[j], gate.lastHeartbeat);
@@ -531,6 +563,11 @@ void motionService() {
 }
 void outputService() {
   uint32_t now = millis();
+  if (loadtestActive) {
+    if (!gate.active() || gate.mode != Mode::Run) loadtestActive = false;
+    else if (now - loadtestStart > LOADTEST_MAX_MS) { outputsOff("loadtest time limit"); return; }
+    else gate.heartbeat(now);  // finite, self-terminating sequence renews its own lease
+  }
   bool wasActive = gate.active();
   if (!gate.step(now)) {
     if (wasActive) outputsOff("watchdog >500ms", ClockOutcome::Watchdog);

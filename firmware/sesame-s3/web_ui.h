@@ -8,6 +8,8 @@ constexpr char WEB_UI[] = R"HTML(<!doctype html><meta name="viewport" content="w
 <button onclick="send('arm run')">Arm calibrated robot</button>
 <button onclick="send('motion rest')">Rest</button><button onclick="send('motion stand')">Stand</button>
 <button onclick="send('motion wave')">Wave</button><button onclick="send('motion dance')">Dance</button>
+<p><button onclick="send('loadtest')">Load test (all 8, auto OFF)</button>
+<button onclick="send('loadtest status')">Load test result</button></p>
 <button onclick="send('show')">Calibration</button><button onclick="send('status')">Status</button>
 <pre id="log"></pre><script>
 let busy=false; const log=document.querySelector('#log'), lease=document.querySelector('#lease');
