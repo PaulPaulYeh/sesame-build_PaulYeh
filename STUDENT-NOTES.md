@@ -51,7 +51,21 @@ outputs OFF. Aborted by `off`, BOOT, or a 30 s limit. `loadtest status` reports 
 result and uptime (a small uptime with `none since boot` means a reset). `manifest/` is
 untouched, so the manifest ID and saved calibration stay compatible.
 
+## Legs fitted; play + speed (2026-11-10)
+
+Legs mounted. Phone web console kept losing the heartbeat lease (`ERR arm run first`),
+so the stock motion buttons never ran.
+
+- `play MOTION`: arms run mode if OFF, runs one stock motion with a self-renewed lease,
+  holds the final pose 15 s, then OFF (90 s cap; off/BOOT abort). Web Rest/Stand/Wave/Dance
+  buttons now send `play …`. Observed on battery: motions correct, no binding, stands steadily.
+- `speed [DEG_PER_S]`: run-mode slew, 0 = direct targets, max 2000, boot default 200,
+  RAM only. `SafeAction::runRate` defaults to `RUN_RATE` so native tests keep 60.
+  Web buttons 60/200/400/Direct/Show. Observed on battery: 200 slightly slow but OK;
+  400 faster, no anomalies; Direct very smooth, no pauses between steps.
+- First flash attempt failed at upload; succeeded after replugging USB.
+- Native tests in `tests/firmware` not run (no host C++ compiler installed).
+
 ## Next
 
-Leg assembly (Steps 33–34) at the 90° mounting pose. Limits may need narrowing after
-legs are fitted.
+Choose a boot default speed (Direct looked best); consider walking motions.

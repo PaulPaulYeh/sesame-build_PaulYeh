@@ -73,6 +73,13 @@ constexpr uint32_t LOADTEST_MAX_MS = 30000;
 bool loadtestActive = false;
 uint32_t loadtestStart = 0, loadtestRuns = 0;
 String loadtestResult = "none since boot";
+// Student addition: `play NAME` arms run mode if needed, performs one stock
+// motion with a self-renewed lease, holds the final pose, then turns OFF.
+constexpr uint32_t PLAY_HOLD_MS = 15000, PLAY_MAX_MS = 90000;
+// Student choice: run-mode speed at boot (deg/s). `speed N` changes it until reboot.
+constexpr float DEFAULT_RUN_RATE = 200, MAX_RUN_RATE = 2000;
+bool playActive = false;
+uint32_t playStart = 0, playHoldUntil = 0;
 unsigned motionIndex = 0;
 uint32_t waitStarted = 0;
 bool waiting = false;
@@ -99,7 +106,10 @@ void setFace(const char* name) {
     face = &f; faceFrame = 0; lastFace = 0; return;
   }
 }
-void cancelQueue() { motion = nullptr; sweeping = false; waiting = false; loadtestActive = false; }
+void cancelQueue() {
+  motion = nullptr; sweeping = false; waiting = false; loadtestActive = false;
+  playActive = false; playHoldUntil = 0;
+}
 bool clearPWM() {
   digitalWrite(OE, HIGH);
   bool ok = true;
@@ -253,6 +263,8 @@ const char* HELP =
   "clock status | clock abort (measurement never writes calibration)\n"
   "servo NAME DEG | pose D0 D1 D2 D3 D4 D5 D6 D7 | rest\n"
   "OFF only: loadtest (all 8: 90,(60,120)x3,90 then OFF) | loadtest status\n"
+  "play MOTION (arms run if OFF; no heartbeat needed; holds 15s then OFF)\n"
+  "speed | speed DEG_PER_S (run mode, 0 = direct, default 200, until reboot)\n"
   "OFF only: wifi JP|US|GB|DE|FR CHANNEL(1..11) TX_DBM(2|8.5|13|19.5)\n"
   "Every active serial/web session needs heartbeat <500ms; use class console.\n"
   "BOOT release while OFF: 30s assembly centre; BOOT press while active: OFF.";
@@ -278,6 +290,12 @@ String dispatchCommand(const char* text, Owner source) {
   }
   if (gate.active() && owner != source) return "ERR owned by another transport; off first";
   if (c.is("heartbeat", 1)) { gate.heartbeat(now); return ""; }
+  if (c.is("speed", 1)) return "SPEED run_deg_s=" + String(gate.runRate, 1) + (gate.runRate <= 0 ? " (direct)" : "");
+  if (c.is("speed", 2)) {
+    if (!c.number(1, value) || value < 0 || value > MAX_RUN_RATE) return "ERR speed 0..2000 (0 = direct)";
+    gate.runRate = value;
+    return "OK SPEED run_deg_s=" + String(gate.runRate, 1) + (value <= 0 ? " (direct)" : "") + " until reboot";
+  }
   if (c.is("loadtest", 2) && !strcmp(c.words[1], "status"))
     return "LOADTEST runs=" + String(loadtestRuns) + " active=" + String(loadtestActive) +
       " result=" + loadtestResult + " uptime_ms=" + String(now);
@@ -289,6 +307,27 @@ String dispatchCommand(const char* text, Owner source) {
     motion = &LOADTEST; motionIndex = 0; loadtestActive = true; loadtestStart = now; ++loadtestRuns;
     loadtestResult = "running"; gate.heartbeat(now);
     return "OK LOADTEST 90,(60,120)x3,90 then OFF; off/BOOT aborts; check: loadtest status";
+  }
+  if (c.is("play", 2)) {
+    const char* name = c.words[1];
+    if (!strcmp(name, "forward")) name = "walk";
+    if (!strcmp(name, "backward")) name = "walk_backward";
+    if (!strcmp(name, "left")) name = "turn_left";
+    if (!strcmp(name, "right")) name = "turn_right";
+    const Motion* found = nullptr;
+    for (const auto& m : MOTIONS) if (!strcmp(name, m.name)) found = &m;
+    if (!found) return "ERR unknown motion";
+    if (gate.active() && gate.mode != Mode::Run) return "ERR off first";
+    if (!gate.active()) {
+      if (!ready || fault) return "ERR hub fault";
+      if (!saved || !gate.cal.complete()) return "ERR play needs all joints verified+saved";
+      if (!gate.arm(Mode::Run, -1, now)) return "ERR arm run";
+      owner = source;
+    }
+    cancelQueue();
+    motion = found; motionIndex = 0; playActive = true; playStart = now; gate.heartbeat(now);
+    setFace(strstr(name, "walk") || strstr(name, "turn") ? "walk" : name);
+    return "OK PLAY " + String(name) + " then hold " + String(PLAY_HOLD_MS / 1000) + "s and OFF; off/BOOT aborts";
   }
   if (clock == ClockCommand::Measure) {
     if (source != USB || !Serial) return "ERR clock measurement requires connected USB owner";
@@ -551,6 +590,10 @@ void motionService() {
   }
   if (motionIndex == motion->count) {
     if (loadtestActive) { Serial.println("OK LOADTEST complete"); outputsOff("loadtest complete"); return; }
+    if (playActive) {
+      Serial.println("OK PLAY complete; holding");
+      motion = nullptr; playHoldUntil = millis() + PLAY_HOLD_MS; return;
+    }
     Serial.println("OK MOTION complete"); motion = nullptr; return;
   }
   const MotionStep& step = motion->steps[motionIndex++];
@@ -567,6 +610,12 @@ void outputService() {
     if (!gate.active() || gate.mode != Mode::Run) loadtestActive = false;
     else if (now - loadtestStart > LOADTEST_MAX_MS) { outputsOff("loadtest time limit"); return; }
     else gate.heartbeat(now);  // finite, self-terminating sequence renews its own lease
+  }
+  if (playActive) {
+    if (!gate.active() || gate.mode != Mode::Run) playActive = false;
+    else if (now - playStart > PLAY_MAX_MS) { outputsOff("play time limit"); return; }
+    else if (playHoldUntil && int32_t(now - playHoldUntil) >= 0) { outputsOff("play hold complete"); return; }
+    else gate.heartbeat(now);
   }
   bool wasActive = gate.active();
   if (!gate.step(now)) {
@@ -638,6 +687,7 @@ void setup() {
   Serial.setTxTimeoutMs(0); // an absent USB host must not block the watchdog
   Wire.begin(sesame::SDA, sesame::SCL); Wire.setClock(100000); Wire.setTimeOut(5);
   loadCalibration();
+  gate.runRate = DEFAULT_RUN_RATE;
   ready = pwm.begin();
   if (ready && !configurePWM()) { ready = false; fault = true; }
   outputsOff("boot");

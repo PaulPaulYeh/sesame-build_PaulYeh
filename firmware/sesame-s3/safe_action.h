@@ -89,6 +89,7 @@ class SafeAction {
   float current[8] = {}, target[8] = {};
   uint8_t enabled = 0;
   uint32_t lastHeartbeat = 0, lastStep = 0;
+  float runRate = RUN_RATE;  // Run-mode slew in deg/s; <= 0 sends targets directly
   bool timedOut = false;
   bool active() const { return mode != Mode::Off; }
   void off() { mode = Mode::Off; enabled = 0; selected = -1; }
@@ -132,7 +133,7 @@ class SafeAction {
     if (uint32_t(now - lastHeartbeat) > WATCHDOG_MS) {
       off(); timedOut = true; return false;
     }
-    if (mode == Mode::Bench) {
+    if (mode == Mode::Bench || (mode == Mode::Run && runRate <= 0)) {
       lastStep = now;
       for (int j = 0; j < 8; ++j)
         if (enabled & (1u << j)) current[j] = target[j];
@@ -141,7 +142,7 @@ class SafeAction {
     // Never turn a stalled loop into a large catch-up jump.
     uint32_t dt = now - lastStep; if (dt > 20) dt = 20;
     lastStep = now;
-    float step = (mode == Mode::Run ? RUN_RATE : CAL_RATE) * dt / 1000.0f;
+    float step = (mode == Mode::Run ? runRate : CAL_RATE) * dt / 1000.0f;
     for (int j = 0; j < 8; ++j) current[j] += clamp(target[j] - current[j], -step, step);
     return true;
   }

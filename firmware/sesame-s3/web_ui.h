@@ -6,8 +6,12 @@ constexpr char WEB_UI[] = R"HTML(<!doctype html><meta name="viewport" content="w
 <button onclick="send('off')">OUTPUTS OFF</button><button onclick="send('stop')">Freeze</button>
 <p><label><input type="checkbox" id="lease">Keep heartbeat (500 ms watchdog)</label></p>
 <button onclick="send('arm run')">Arm calibrated robot</button>
-<button onclick="send('motion rest')">Rest</button><button onclick="send('motion stand')">Stand</button>
-<button onclick="send('motion wave')">Wave</button><button onclick="send('motion dance')">Dance</button>
+<p>One press = arm + motion + 15 s hold + OFF (no heartbeat needed):<br>
+<button onclick="send('play rest')">Rest</button><button onclick="send('play stand')">Stand</button>
+<button onclick="send('play wave')">Wave</button><button onclick="send('play dance')">Dance</button></p>
+<p>Speed: <button onclick="send('speed 60')">60</button><button onclick="send('speed 200')">200</button>
+<button onclick="send('speed 400')">400</button><button onclick="send('speed 0')">Direct</button>
+<button onclick="send('speed')">Show</button></p>
 <p><button onclick="send('loadtest')">Load test (all 8, auto OFF)</button>
 <button onclick="send('loadtest status')">Load test result</button></p>
 <button onclick="send('show')">Calibration</button><button onclick="send('status')">Status</button>
