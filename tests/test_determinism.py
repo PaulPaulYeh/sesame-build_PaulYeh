@@ -14,7 +14,7 @@ import mujoco
 import numpy as np
 import pytest
 
-from sim.build_mjcf import MODEL_PATH, SPAWN_Z
+from sim.build_mjcf_s3 import MODEL_PATH, SPAWN_Z
 from sim.manifest import load_manifest
 
 REFERENCE_PATH = Path(__file__).parent / "data" / "stand_1000_qpos.json"

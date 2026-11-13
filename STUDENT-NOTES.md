@@ -69,3 +69,22 @@ so the stock motion buttons never ran.
 ## Next
 
 Choose a boot default speed (Direct looked best); consider walking motions.
+
+## Simulator matches my V3 body (2026-11-13)
+
+Browser sim installed (Node 26.13.1, `cd web; npm ci; npm run dev` → http://localhost:5173).
+The stock model showed the original v121 body; my robot uses the single-OLED V3 internal
+frame (`assets/printing/internal-frame-s3`). `sim/build_mjcf_s3.py` now generates
+`models/sesame.xml` (the reference `sim/build_mjcf.py` is left untouched; its hash is audited):
+
+- Torso meshes `s3_frame/s3_bottom/s3_head/s3_lid` converted from the V3 STLs (already in
+  torso-local mm; only scaled to m). Regenerate: `uv run python -m sim.build_mjcf_s3 --meshes`.
+- Hip axes from V3 `frame-datums.json`: front x +28.2 mm, back x −28.6 mm, |y| 38.0 mm
+  (upstream: ±24.5, ±23.0). Leg parts, link lengths and servo seat height unchanged.
+- Collision: base box (frame+bottom, 87×79 mm) + head box (87×59 mm, up to z 58.7 mm).
+- Masses ESTIMATED: base 181 g, head 45 g (slicer weights, nominal servos, 47 g battery).
+  Weigh the robot to replace them.
+- Python sim tests pass (incl. behavior: stand level, bow/pushup dip, walk, turns).
+  Not passing on this PC, unrelated: body-CAD provenance audit (Windows `\` paths) and
+  browser CDP tests (need Chrome setup).
+- Many tracked files had been checked out with CRLF; restored to LF (no content change).

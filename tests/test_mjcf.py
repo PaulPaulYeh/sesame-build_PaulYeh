@@ -5,7 +5,8 @@ import math
 import mujoco
 import pytest
 
-from sim.build_mjcf import MODEL_PATH, build_xml
+# Student build: the model is generated for the V3-frame S3 body.
+from sim.build_mjcf_s3 import MODEL_PATH, build_xml
 from sim.manifest import load_manifest
 
 
@@ -22,7 +23,7 @@ def model():
 def test_committed_xml_matches_generator(manifest):
     assert MODEL_PATH.read_text() == build_xml(manifest), (
         "models/sesame.xml drifted from the manifest — "
-        "regenerate with: uv run python -m sim.build_mjcf"
+        "regenerate with: uv run python -m sim.build_mjcf_s3"
     )
 
 
@@ -50,15 +51,17 @@ def test_rig_forward_kinematics_at_rest(model):
     # straight out sideways at hip height, wingspan = 2*(HIP_Y+UPPER+FOOT).
     import mujoco as mj
 
-    from sim.build_mjcf import FOOT_LEN, HIP_X, HIP_Y, LEG_PLANE_DZ, SPAWN_Z, UPPER_LEN
+    from sim.build_mjcf_s3 import (
+        FOOT_LEN, HIP_X_BACK, HIP_X_FRONT, HIP_Y, LEG_PLANE_DZ, SPAWN_Z, UPPER_LEN,
+    )
 
     data = mj.MjData(model)
     mj.mj_forward(model, data)
     span = HIP_Y + UPPER_LEN + FOOT_LEN
     sid = mj.mj_name2id(model, mj.mjtObj.mjOBJ_SITE, "front_left_paw")
-    assert data.site_xpos[sid] == pytest.approx([HIP_X, span, SPAWN_Z + LEG_PLANE_DZ], abs=1e-9)
+    assert data.site_xpos[sid] == pytest.approx([HIP_X_FRONT, span, SPAWN_Z + LEG_PLANE_DZ], abs=1e-9)
     sid = mj.mj_name2id(model, mj.mjtObj.mjOBJ_SITE, "back_right_paw")
-    assert data.site_xpos[sid] == pytest.approx([-HIP_X, -span, SPAWN_Z + LEG_PLANE_DZ], abs=1e-9)
+    assert data.site_xpos[sid] == pytest.approx([HIP_X_BACK, -span, SPAWN_Z + LEG_PLANE_DZ], abs=1e-9)
 
 
 def test_actuators_in_firmware_channel_order(model, manifest):
